@@ -1,0 +1,59 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend
+    ports:
+      - "8080:8080"
+    networks:
+      - default
+    develop:
+      # Create a `watch` configuration to update the app
+      #
+      watch:
+        # Sync the working directory with the `/app` directory in the container
+        - action: sync
+          path:  ./backend
+          target: /backend
+          # Exclude the project virtual environment
+          ignore:
+            - .venv/
+
+        # Rebuild the image on changes to the `pyproject.toml`
+        - action: rebuild
+          path: ./pyproject.toml
+    # stdin_open: true
+    # tty: true
+    command:  ["uv", "run", "fastapi","run", "main.py", "--host", "0.0.0.0", "--port", "8080","--reload"]
+
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend
+    ports:
+      - "8081:8080"
+    networks:
+      - default
+
+    develop:
+      # Create a `watch` configuration to update the app
+      #
+      watch:
+        # Sync the working directory with the `/app` directory in the container
+        - action: sync
+          path:  ./frontend
+          target: /frontend
+          # Exclude the project virtual environment
+          ignore:
+            - .venv/
+        # Rebuild the image on changes to the `pyproject.toml`
+        - action: rebuild
+          path: ./pyproject.toml
+
+networks:
+  default:
+    name: devnet
+    external: true
