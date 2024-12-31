@@ -1,0 +1,16 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "duckduckgo-search>=7.1.1",
+    "fastapi[standard]>=0.115.6",
+    "jupyter>=1.1.1",
+    "openai>=1.58.1",
+    "phidata>=2.7.5",
+    "sqlalchemy>=2.0.36",
+    "sse-starlette>=2.2.1",
+    "yfinance>=0.2.51",
+]
