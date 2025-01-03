@@ -75,9 +75,9 @@ def home_page():
             chat_input()
 
 EXAMPLES = [
-    "Create a file-lock in Python",
-    "Write an email to Congress to have free milk for all",
-    "Make a nice box shadow in CSS",
+    "AIエージェントフレームワークの最新情報を教えて",
+    "Pythonの次に覚えやすいフロントエンド向けプログラミング言語は？",
+    "革新的な最新技術について",
 ]
 
 def examples_row():

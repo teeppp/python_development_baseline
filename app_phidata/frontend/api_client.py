@@ -6,6 +6,7 @@ from typing import List, AsyncGenerator
 import requests
 import json
 import aiohttp
+import os
 
 @dataclass
 class ChatMessage:
@@ -13,7 +14,7 @@ class ChatMessage:
     content: str
     in_progress: bool = False
 
-BASE_URL = "http://localhost:18001"
+BASE_URL = os.getenv("LLM_API_URL","http://localhost:18001")
 
 def send_normal_message(message: str) -> str:
     """通常モードでメッセージを送信"""

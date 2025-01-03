@@ -11,7 +11,9 @@ services:
       - /app/.venv
     networks:
       - default
-    command: ["uv","run","fastapi","run", "api.py", "--host", "0.0.0.0", "--port", "8080"]
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    command: ["uv","run","fastapi","run", "api.py", "--host", "0.0.0.0", "--port", "8080","--reload"]
 
   dev_frontend:
     build:
@@ -23,9 +25,11 @@ services:
     volumes:
       - ./frontend:/app
       - /app/.venv
+    environment:
+      - LLM_API_URL=${LLM_API_URL}
     networks:
       - default
-    command: ["uv","run","gunicorn","--bind", "0.0.0.0:8080", "main:me"]
+    command: ["uv","run","gunicorn","--bind", "0.0.0.0:8080", "main:me","--reload"]
 
   backend:
     build:
