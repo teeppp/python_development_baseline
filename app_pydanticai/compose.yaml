@@ -1,0 +1,89 @@
+services:
+  dev_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base_backend
+    # ports:
+    #   - "8080:8080"
+    volumes:
+      - ./backend:/app
+      - /app/.venv
+    networks:
+      - default
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    command: ["uv","run","fastapi","run", "api.py", "--host", "0.0.0.0", "--port", "8080","--reload"]
+  dev_frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base_frontend
+    ports:
+      - "8081:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/.next
+      - /app/node_modules
+    environment:
+      - LLM_API_URL=${LLM_API_URL}
+    networks:
+      - default
+    command: ["npm","run","dev"]
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend
+    ports:
+      - "8080:8080"
+    networks:
+      - default
+    develop:
+      # Create a `watch` configuration to update the app
+      watch:
+        # Sync the working directory with the `/app` directory in the container
+        - action: sync
+          path:  ./backend
+          target: /app
+          # Exclude the project virtual environment
+          ignore:
+            - .venv/
+
+        # Rebuild the image on changes to the `pyproject.toml`
+        - action: rebuild
+          path: ./pyproject.toml
+    # stdin_open: true
+    # tty: true
+    # command:  ["/app/.venv/bin/fastapi","run", "main.py", "--host", "0.0.0.0", "--port", "8080","--reload"]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend
+    ports:
+      - "8081:8080"
+    networks:
+      - default
+
+    develop:
+      # Create a `watch` configuration to update the app
+      #
+      watch:
+        # Sync the working directory with the `/app` directory in the container
+        - action: sync
+          path:  ./frontend
+          target: /app
+          # Exclude the project virtual environment
+          ignore:
+            - .venv/
+        # Rebuild the image on changes to the `pyproject.toml`
+        - action: rebuild
+          path: ./pyproject.toml
+
+networks:
+  default:
+    name: devnet
+    external: true
