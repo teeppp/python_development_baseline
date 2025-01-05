@@ -4,8 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: base_backend
-    # ports:
-    #   - "8080:8080"
+    ports:
+       - "8080:8080"
     volumes:
       - ./backend:/app
       - /app/.venv
@@ -82,6 +82,38 @@ services:
         # Rebuild the image on changes to the `pyproject.toml`
         - action: rebuild
           path: ./pyproject.toml
+
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./.postgresdata:/var/lib/postgresql/data
+    healthcheck:  # コンテナの起動チェック
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      retries: 3
+    networks:
+      - default
+
+  ferretdb:
+    image: ghcr.io/ferretdb/ferretdb:latest
+    container_name: ferretdb
+    restart: on-failure
+    ports:
+      - "27017:27017"
+    environment:
+      FERRETDB_POSTGRESQL_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      FERRETDB_TELEMETRY: disable
+    depends_on:
+        postgres:
+          condition: service_healthy  # postgres がちゃんと起動したら start
+    networks:
+      - default
 
 networks:
   default:
